@@ -15,6 +15,7 @@ sub _tzdir { $tzdir ||= (grep { -d } qw(/usr/share/zoneinfo /usr/lib/zoneinfo))[
 
 sub system_tzfile {
   my $name = shift;
+  croak 'system_tzfile: time zone name is required' unless defined $name and length $name;
 
   if ($name eq 'local') {
     if (-l '/etc/localtime') {
@@ -28,7 +29,8 @@ sub system_tzfile {
   my $dir = $ENV{TZDIR} || _tzdir;
   croak 'Could not find system zoneinfo directory, please set TZDIR in the environment'
     unless defined $dir and length $dir;
-  my $path = File::Spec->catfile($dir, $name);
+  my @parts = split /\//, $name;
+  my $path = File::Spec->catfile($dir, @parts);
   return undef unless -f $path;
   return $path;
 }
