@@ -3,27 +3,34 @@ package Time::OlsonTZ::System;
 use strict;
 use warnings;
 use Carp 'croak';
+use Cwd 'abs_path';
 use Exporter 'import';
 use File::Spec;
+
+use constant LOCALTIME_PATH => '/etc/localtime';
 
 our $VERSION = '0.001';
 
 our @EXPORT_OK = 'system_tzfile';
 
 my $tzdir;
-sub _tzdir { $tzdir ||= (grep { -d } qw(/usr/share/zoneinfo /usr/lib/zoneinfo))[0] }
+sub _tzdir { $tzdir ||= (-d '/usr/share/zoneinfo') ? '/usr/share/zoneinfo' :
+  (-d '/usr/lib/zoneinfo') ? '/usr/lib/zoneinfo' : undef }
 
 sub system_tzfile {
   my $name = shift;
   croak 'system_tzfile: time zone name is required' unless defined $name and length $name;
 
   if ($name eq 'local') {
-    if (-l '/etc/localtime') {
-      my $path = readlink '/etc/localtime' or croak "Failed to readlink /etc/localtime: $!";
-      $path = File::Spec->catfile('/etc', $path) unless File::Spec->file_name_is_absolute($path);
+    if ($ENV{TZ}) {
+      $name = $ENV{TZ};
+    } elsif (-l LOCALTIME_PATH) {
+      # resolve any symlinks and return absolute path
+      my $path = abs_path LOCALTIME_PATH or croak "Failed to resolve /etc/localtime: $!";
       return $path if -f $path;
+    } elsif (-f LOCALTIME_PATH) {
+      return LOCALTIME_PATH;
     }
-    return '/etc/localtime' if -f '/etc/localtime';
   }
 
   my $dir = $ENV{TZDIR} || _tzdir;
@@ -67,7 +74,8 @@ Returns the file path to the system tzfile for C<$tz_name>, if it exists, or
 C<undef> otherwise. Throws an exception if the tzfile database location was not
 found or set by the C<TZDIR> environment variable.
 
-As a special case, if C<local> is passed as the time zone name,
+As a special case, if C<local> is passed as the time zone name, the C<TZ>
+environment variable will be used as the time zone name if set, otherwise
 F</etc/localtime> or (if it is a symlink) the path to the referenced tzfile
 will be returned, if it exists.
 

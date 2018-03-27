@@ -14,7 +14,14 @@ ok defined($path = system_tzfile('PST8PDT')), "PST8PDT: $path";
 ok defined($path = system_tzfile('Etc/GMT')), "Etc/GMT: $path";
 
 SKIP: { skip 1, '/etc/localtime not found' unless -f '/etc/localtime';
+  local $ENV{TZ};
   ok defined($path = system_tzfile('local')), "local: $path";
+}
+
+{
+  local $ENV{TZ} = 'Asia/Bangkok';
+  ok defined($path = system_tzfile('local')), "local: $path";
+  is $path, system_tzfile($ENV{TZ}), 'localtime based on env';
 }
 
 done_testing;
