@@ -18,6 +18,7 @@ my %WriteMakefileArgs = (
   "NAME" => "Time::OlsonTZ::System",
   "PREREQ_PM" => {
     "Carp" => 0,
+    "Cwd" => 0,
     "Exporter" => "5.57",
     "File::Spec" => 0
   },
@@ -35,6 +36,7 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Carp" => 0,
+  "Cwd" => 0,
   "Exporter" => "5.57",
   "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,

@@ -30,7 +30,8 @@ Returns the file path to the system tzfile for C<$tz_name>, if it exists, or
 C<undef> otherwise. Throws an exception if the tzfile database location was not
 found or set by the C<TZDIR> environment variable.
 
-As a special case, if C<local> is passed as the time zone name,
+As a special case, if C<local> is passed as the time zone name, the C<TZ>
+environment variable will be used as the time zone name if set, otherwise
 F</etc/localtime> or (if it is a symlink) the path to the referenced tzfile
 will be returned, if it exists.
 
